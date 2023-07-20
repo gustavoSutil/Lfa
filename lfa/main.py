@@ -1,3 +1,4 @@
+import tabulate
 def rule(rule,alfabeto):
     Estate = {
         'letter': '',
@@ -33,7 +34,10 @@ def findLetter(estados,ALFABETO):
         if l not in letters:
             return l
     print('Não tem mais letras')
+
+
 def token(token,inicial,estados,estadosTocreate,ALFABETO):
+    sequence = ''
     if inicial == None:
         inicial = {
             'letter': 'S',
@@ -45,14 +49,40 @@ def token(token,inicial,estados,estadosTocreate,ALFABETO):
         if i == 0:
             inicial['->'].append(token[0])
             letter = findLetter(estados,ALFABETO)
+            sequence = letter
             if len(token)==2:
                 final = True
+                aponta = ""
             else:
+                aponta = token[i+1]
                 final = False
-            estados.append('letter': letter,
+            estados.append({'letter': letter,
+                    '->': [aponta],
+                    'goTo': [],
+                    'final': final})
+            estados[0]['goTo'].append(letter)
+            goLetter = findLetter(estados,ALFABETO)
+            estados[len(estados)-1]['goTo'].append(goLetter)
+        
+        if token[i+1]=='\n':
+            print(1)
+            letter = findLetter(estados,ALFABETO)
+            letter2 = findLetter(estados,ALFABETO)
+            
+            estados.append({'letter': letter2,
                     '->': [],
                     'goTo': [],
-                    'final': final)
+                    'final': True}
+            )
+            break
+        if token[i]!='\n' and i != 0:
+            print(2)
+            letter = findLetter(estados,ALFABETO)
+            estados.append({'letter': letter,
+                    '->': [token[i+1]],
+                    'goTo': [],
+                    'final': False})
+            estados[-1]['goTo'].append(findLetter(estados,ALFABETO))
 
     return inicial,estados,estadosTocreate
 
@@ -80,5 +110,24 @@ for i in f:
     if n[0] != '<' and n[0] != '\n' and n[0] != ' ':
         estados[0],estados, estadosToCrete = token(n,initial,estados,estadosToCreate,ALFABETO)
         initial = estados[0]
-print(estados)
+
+for estate in estadosToCreate:
+    for estadoExistete in estados:
+            if estate['letter']==estadoExistete['letter']:
+                newState = findLetter(estados,ALFABETO)
+                estados.append({
+                    'letter': newState,
+                    '->': [],
+                    'goTo': [],
+                    'final': True})
+                estadoExistete['->'].append(estate['->'][0])
+                estadoExistete['goTo'].append(newState)
+
+
+# for estado in estados:
+#     for letter in estado['->']:
+        
+
+for estado in estados:
+    print(estado)
 print(estadosToCreate)
