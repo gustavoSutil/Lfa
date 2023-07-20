@@ -65,7 +65,6 @@ def token(token,inicial,estados,estadosTocreate,ALFABETO):
             estados[len(estados)-1]['goTo'].append(goLetter)
         
         if token[i+1]=='\n':
-            print(1)
             letter = findLetter(estados,ALFABETO)
             letter2 = findLetter(estados,ALFABETO)
             
@@ -76,7 +75,6 @@ def token(token,inicial,estados,estadosTocreate,ALFABETO):
             )
             break
         if token[i]!='\n' and i != 0:
-            print(2)
             letter = findLetter(estados,ALFABETO)
             estados.append({'letter': letter,
                     '->': [token[i+1]],
@@ -85,6 +83,25 @@ def token(token,inicial,estados,estadosTocreate,ALFABETO):
             estados[-1]['goTo'].append(findLetter(estados,ALFABETO))
 
     return inicial,estados,estadosTocreate
+
+def group(estados):
+    for estado in estados:
+        for i in range(len(estado['->'])):
+            qtd = 0
+            for y in range(len(estado['->'])):
+                if estado['->'][i]==estado['->'][y]:
+                    qtd+=1
+                    if qtd>1:
+                        aux = estado['goTo'][i]
+                        estado['goTo'][i] = [estado['goTo'][i],estado['goTo'][y]]
+                        estado['->'].pop(y)
+                        estado['goTo'].pop(y)
+                        qtd-=1
+                        estados = group(estados)
+                        return  estados
+    return estados
+
+
 
 
 
@@ -123,11 +140,38 @@ for estate in estadosToCreate:
                 estadoExistete['->'].append(estate['->'][0])
                 estadoExistete['goTo'].append(newState)
 
-
-# for estado in estados:
-#     for letter in estado['->']:
-        
-
+print("até aqui o codigo faz isso")
 for estado in estados:
     print(estado)
-print(estadosToCreate)
+print("----------------------------------------------------------------------------")
+
+
+estados = group(estados)
+for estado in estados:
+    print(estado)
+print("----------------------------------------------------------------------------")
+
+
+for estado in estados:
+    for i in range(len(estado['goTo'])):
+        if len(estado['goTo'][i])>1:
+            estate = estado['goTo'][i]
+            new = ({'letter': estate,
+                    '->': [],
+                    'goTo': [],
+                    'final': False})
+            for n in estate:
+                for est in estados:
+                    if n == est['letter']:
+                        new['->'].append(est['->'])
+                        new['goTo'].append(est['goTo'])
+                        if est['final']==True:
+                            new['final'] = True
+            estados.append(new)
+
+estados = group(estados)
+for estado in estados:
+    print(estado)
+print("----------------------------------------------------------------------------")
+
+
